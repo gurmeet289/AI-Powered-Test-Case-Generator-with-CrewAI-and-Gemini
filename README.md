@@ -6,11 +6,11 @@ A modular Flask web application that uses **CrewAI agents** and **Google Gemini 
 
 ## Architecture Design Flow
 
-    ![TestCase_Generation_Tool_ Architecture_Diagram](https://github.com/user-attachments/assets/b7dcf478-2505-4c21-8b80-41a0f36957d0)
+  ![Image](https://github.com/user-attachments/assets/2cc1b826-34bf-4f48-b2ba-ccca38db82b3)
 
 ## 🌐 Live Demo
 
-    https://github.com/user-attachments/assets/a12e4ad7-ff75-487b-b8dd-8c2dda2625b6
+https://github.com/user-attachments/assets/a12e4ad7-ff75-487b-b8dd-8c2dda2625b6
 
 ## Project Objective
 
