@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 crewai
 load_dotenv
 langchain
 langchain-google-genai
+=======
+crewai
+load_dotenv
+langchain
+langchain-google-genai
+>>>>>>> 8d0b8be295460a5e90214c704e12fef788463a73
 flask
