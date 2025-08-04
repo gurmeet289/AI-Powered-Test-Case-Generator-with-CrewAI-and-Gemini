@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Test Case Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background: #f4f4f9;
+    }
+
+    textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .result {
+      background: #fff;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    details {
+      margin-bottom: 1rem;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+      padding: 1rem;
+      border: 1px solid #ddd;
+    }
+
+    summary {
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .button-bar {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    #loader {
+      display: none;
+      font-weight: bold;
+      color: green;
+      margin-top: 10px;
+    }
+
+    .section-heading {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-top: 1rem;
+      color: #333;
+    }
+
+    .step, .expected {
+      margin-left: 1rem;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+
+    .expected {
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <h2>AI-Powered Test Case Generator</h2>
+
+  <textarea id="requirement" rows="6" placeholder="Enter your requirement here..."></textarea>
+  <button onclick="generateTestCases()">Generate Test Cases</button>
+  <p id="loader">🧠 Thinking... Generating Test Cases. Please wait...</p>
+
+  <div class="button-bar">
+    <button onclick="copyTestCases()">📋 Copy to Clipboard</button>
+    <button onclick="downloadTestCases()">⬇️ Download as TXT</button>
+  </div>
+
+  <div id="result" class="result"></div>
+
+  <script>
+    function generateTestCases() {
+      const requirement = document.getElementById("requirement").value;
+      const loader = document.getElementById("loader");
+      const resultDiv = document.getElementById("result");
+
+      resultDiv.innerHTML = '';
+      loader.style.display = 'block';
+
+      fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requirement })
+      })
+      .then(res => res.json())
+      .then(data => {
+        loader.style.display = 'none';
+
+        const cleanText = data.result
+          .replace(/\*\*/g, '') // remove bold asterisks
+          .replace(/^\s*#+\s?/gm, '') // remove markdown headings
+          .replace(/\n{2,}/g, '\n\n'); // normalize newlines
+
+        const testCases = cleanText.split(/\n(?=TC_|Test Case ID:|^\d+\.\s)/gm);
+
+        let outputHtml = '';
+        testCases.forEach(tc => {
+          const lines = tc.trim().split('\n');
+          const title = lines[0] || 'Test Case';
+          const content = lines.slice(1).map(line => {
+            if (/^Steps?:/i.test(line)) {
+              return `<div class="section-heading">Steps:</div>`;
+            } else if (/^Expected Result:/i.test(line)) {
+              return `<div class="section-heading">Expected Result:</div>`;
+            } else if (/^\d+\./.test(line.trim())) {
+              return `<div class="step">${line.trim()}</div>`;
+            } else {
+              return `<div class="expected">${line.trim()}</div>`;
+            }
+          }).join('');
+
+          outputHtml += `
+            <details>
+              <summary>${title}</summary>
+              <div>${content}</div>
+            </details>
+          `;
+        });
+
+        resultDiv.innerHTML = outputHtml;
+      })
+      .catch(err => {
+        loader.innerHTML = "❌ Something went wrong!";
+        loader.style.color = "red";
+      });
+    }
+
+    function copyTestCases() {
+      const content = document.getElementById("result").innerText;
+      navigator.clipboard.writeText(content).then(() => {
+        alert("✅ Test cases copied to clipboard!");
+      });
+    }
+
+    function downloadTestCases() {
+      const content = document.getElementById("result").innerText;
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "test_cases.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>
