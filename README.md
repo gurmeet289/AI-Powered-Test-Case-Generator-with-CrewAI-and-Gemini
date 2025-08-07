@@ -78,8 +78,8 @@ It uses a **multi-agent system** built with [CrewAI](https://docs.crewai.com/) a
         cd ai-test-case-generator
     
     # 2. Create environment and activate it
-        python -m venv venv
-        source venv/bin/activate  # or venv\Scripts\activate on Windows
+        conda create -p venv python==3.10 -y
+        conda activate venv
     
     # 3. Install dependencies
         pip install -r requirements.txt
